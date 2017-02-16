@@ -3,10 +3,12 @@
 #include <vector>
 
 #include "object.h"
+#include "matrix.h"
+
 //Screen dimension constants
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
-
+const int SCREEN_DEPTH = 255;
 Uint32 get_pixel32( SDL_Surface *surface, int x, int y )
 {
     //Convert the pixels to 32 bit
@@ -30,8 +32,18 @@ int main(int argc, char *args[]) {
         printf("Error need a filename arg.");
         return 1;
     }
+    if(argc<3) {
+        printf("Need a matrix arg.");
+        return 2;
+    }
     std::ifstream infile(args[1]);
     object<float> teapot(infile);
+
+    std::ifstream inmatrix(args[2]);
+
+    matrix transform(inmatrix);
+    std::cout << transform <<"\n";
+    teapot.transform(transform);
 
     //The window we'll be rendering to
     SDL_Window *window = NULL;
@@ -44,7 +56,7 @@ int main(int argc, char *args[]) {
         printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
     } else {
         //Create window
-        window = SDL_CreateWindow("SDL Tutorial", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH,
+        window = SDL_CreateWindow("Burn Walton", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH,
                                   SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
         if (window == NULL) {
             printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
@@ -56,9 +68,10 @@ int main(int argc, char *args[]) {
             std::vector<Uint32> pixels(640 * 480,23562462);
 
             for(point<float>& p:teapot.points) {
-                int x = (p.x+5)*60;
-                int y = (p.y+5)*40;
-                pixels[y*SCREEN_WIDTH+x] = 0;
+                point<int> screen_coords = p.screen_coords(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_DEPTH);
+                if(screen_coords.inbounds(SCREEN_WIDTH, SCREEN_HEIGHT)) {
+                    pixels[screen_coords[1] * SCREEN_WIDTH + screen_coords[0]] = 0;
+                }
             }
 
             SDL_UpdateTexture(texture, NULL, pixels.data(), 640 * sizeof(Uint32));
@@ -68,7 +81,7 @@ int main(int argc, char *args[]) {
             SDL_RenderPresent(renderer);
 
             //Wait two seconds
-            SDL_Delay(20000);
+            SDL_Delay(3000);
         }
     }
     //Destroy window

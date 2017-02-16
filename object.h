@@ -8,6 +8,7 @@
 
 #include "triangle.h"
 #include "point.h"
+#include "matrix.h"
 #include <iostream>
 #include <vector>
 #include <fstream>
@@ -42,6 +43,12 @@ struct object {
             triangles.emplace_back(line);
         }
 
+    }
+
+    void transform(const matrix& transformation) {
+        for(point<T>& p: points) {
+            p = transformation.vector_mult(p);
+        }
     }
 };
 
