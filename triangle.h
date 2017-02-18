@@ -6,9 +6,13 @@
 #define GPU_TRIANGLE_H
 
 #include <string>
+#include <vector>
+#include "point.h"
+
 struct triangle {
-    int v1, v2, v3;
-    triangle(std::string verts);
+    const point<float> *v1, *v2, *v3;
+    triangle(std::string verts,const std::vector<point<float>>& points);
+    //point<float> normal();
 };
 
 

@@ -40,7 +40,7 @@ struct object {
 
         for(int i=0; i<t_size; i++) {
             std::getline(in, line);
-            triangles.emplace_back(line);
+            triangles.emplace_back(line, points);
         }
 
     }

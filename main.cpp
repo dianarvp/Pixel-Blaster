@@ -9,6 +9,8 @@
 const int SCREEN_WIDTH = 640;
 const int SCREEN_HEIGHT = 480;
 const int SCREEN_DEPTH = 255;
+
+const Uint32 color = 255;
 Uint32 get_pixel32( SDL_Surface *surface, int x, int y )
 {
     //Convert the pixels to 32 bit
