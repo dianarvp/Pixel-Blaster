@@ -11,8 +11,14 @@
 
 struct triangle {
     const point<float> *v1, *v2, *v3;
-    triangle(std::string verts,const std::vector<point<float>>& points);
-    point<float> normal() const;
+    point<float> norm;
+    float shade;
+
+    triangle(std::string verts, const std::vector<point<float>> &points);
+
+    void normal();
+
+    void color(const point<float> &lighting);
 };
 
 

@@ -12,11 +12,12 @@
 struct matrix {
     float m[3][4];
 
-    matrix(std::vector<float>& elements);
-    matrix(std::istream& elements);
+    matrix(std::vector<float> &elements);
 
-    template <typename T>
-    point<T> vector_mult(const point<T>& p) const {
+    matrix(std::istream &elements);
+
+    template<typename T>
+    point<T> vector_mult(const point<T> &p) const {
         point<T> pt;
         for (int i = 0; i < 3; i++) {
             pt[i] = 0;
@@ -27,8 +28,17 @@ struct matrix {
         }
         return pt;
     }
+
+    void scale(float scale) {
+        for(int i=0; i<3; i++) {
+            for(int j=0; j<4; j++) {
+                m[i][j] *= scale;
+            }
+        }
+    }
 };
 
 
-std::ostream& operator << (std::ostream & out, matrix const& data);
+std::ostream &operator<<(std::ostream &out, matrix const &data);
+
 #endif //GPU_MATRIX_H

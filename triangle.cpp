@@ -4,13 +4,14 @@
 
 #include <sstream>
 #include <vector>
+#include <iostream>
 #include "triangle.h"
 
-triangle::triangle(std::string verts, const std::vector<point<float>>& points) {
+triangle::triangle(std::string verts, const std::vector<point<float>> &points) {
     std::istringstream v(verts);
     int size;
     v >> size;
-    if(size != 3) throw std::runtime_error("OFF not triangles");
+    if (size != 3) throw std::runtime_error("OFF not triangles");
     int i1, i2, i3;
     v >> i1 >> i2 >> i3;
     v1 = &points[i1];
@@ -18,13 +19,15 @@ triangle::triangle(std::string verts, const std::vector<point<float>>& points) {
     v3 = &points[i3];
 }
 
-point<float> triangle::normal() const{
+void triangle::normal() {
     point<float> vec1 = *v1 - *v2;
     point<float> vec2 = *v1 - *v3;
 
     point<float> cross = vec1.cross(vec2);
     float magnitude = cross.mag();
+    norm = cross / magnitude;
+}
 
-    point<float> norm = cross/magnitude;
-    return norm;
+void triangle::color(const point<float> &lighting) {
+    shade = fabs(lighting.dot(norm));
 }
