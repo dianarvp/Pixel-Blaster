@@ -12,7 +12,7 @@
 struct triangle {
     const point<float> *v1, *v2, *v3;
     triangle(std::string verts,const std::vector<point<float>>& points);
-    //point<float> normal();
+    point<float> normal() const;
 };
 
 

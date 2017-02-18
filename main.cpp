@@ -47,6 +47,14 @@ int main(int argc, char *args[]) {
     std::cout << transform <<"\n";
     teapot.transform(transform);
 
+    for(const triangle &t : teapot.triangles) {
+        std::cout << "point1: " << *t.v1 << " point 2: " << *t.v2 << " point 3: " << *t.v3 << std::endl;
+        point<float> norm = t.normal();
+        std::cout << "norm: " << norm << " mag: " << norm.mag() << std::endl;
+        std::cout << "perp1: " << norm.dot(*t.v1-*t.v2) << " perp2: " << norm.dot(*t.v1-*t.v3) << " perp3: " << norm.dot(*t.v2-*t.v3) <<std::endl;
+        std:: cout << "\n";
+    }
+
     //The window we'll be rendering to
     SDL_Window *window = NULL;
 

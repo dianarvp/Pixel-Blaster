@@ -17,9 +17,14 @@ triangle::triangle(std::string verts, const std::vector<point<float>>& points) {
     v2 = &points[i2];
     v3 = &points[i3];
 }
-/*
-point<float> triangle::normal() {
-    get the vectors
-    cross product;
-    normalize;
-}*/
+
+point<float> triangle::normal() const{
+    point<float> vec1 = *v1 - *v2;
+    point<float> vec2 = *v1 - *v3;
+
+    point<float> cross = vec1.cross(vec2);
+    float magnitude = cross.mag();
+
+    point<float> norm = cross/magnitude;
+    return norm;
+}
