@@ -6,6 +6,7 @@
 #define GPU_SCREEN_COORDS_H
 
 #include <vector>
+#include <cstdint>
 #include "point.h"
 
 struct screen {
@@ -25,6 +26,8 @@ struct screen {
     void set_pixel(const point<int> &p, uint32_t color);
 
     void draw_line(const point<int> &p1, const point<int> &p2, uint32_t color);
+
+    void draw_triangle(const point<int> &p1, const point<int> &p2, const point<int> &p3, uint32_t color);
 
     point<int> projection(const point<float> &p) const;
 };

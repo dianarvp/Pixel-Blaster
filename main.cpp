@@ -1,5 +1,5 @@
 #include <iostream>
-#include <SDL.h>
+#include <SDL2/SDL.h>
 #include <vector>
 
 #include "object.h"
@@ -42,8 +42,7 @@ int main(int argc, char *args[]) {
     std::ifstream inmatrix(args[2]);
 
     matrix transform(inmatrix);
-    transform.scale(.05);
-    std::cout << transform << "\n";
+    transform.scale(1);
     teapot.transform(transform);
 
     //The window we'll be rendering to
@@ -73,9 +72,11 @@ int main(int argc, char *args[]) {
                 point<int> screen_cords1 = screen.projection(*t.v1);
                 point<int> screen_cords2 = screen.projection(*t.v2);
                 point<int> screen_cords3 = screen.projection(*t.v3);
+
                 screen.draw_line(screen_cords1, screen_cords2, t.shade*255);
                 screen.draw_line(screen_cords1, screen_cords3, t.shade*255);
                 screen.draw_line(screen_cords2, screen_cords3, t.shade*255);
+                screen.draw_triangle(screen_cords1, screen_cords2, screen_cords3, t.shade*255);
             }
 
             SDL_UpdateTexture(texture, NULL, screen.pixels.data(), 640 * sizeof(Uint32));
