@@ -20,9 +20,11 @@ struct screen {
     }
 
     bool inbounds(int x, int y) const;
+
     bool inbounds(const point<int> &p) const;
 
     void set_pixel(int x, int y, uint32_t color);
+
     void set_pixel(const point<int> &p, uint32_t color);
 
     void draw_line(const point<int> &p1, const point<int> &p2, uint32_t color);

@@ -30,8 +30,8 @@ struct matrix {
     }
 
     void scale(float scale) {
-        for(int i=0; i<3; i++) {
-            for(int j=0; j<4; j++) {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 4; j++) {
                 m[i][j] *= scale;
             }
         }
