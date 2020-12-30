@@ -28,6 +28,10 @@ void triangle::normal() {
     norm = cross / magnitude;
 }
 
-void triangle::color(const point<float> &lighting) {
-    shade = fabs(lighting.dot(norm));
+void triangle::throw_shade(const point<float> &lighting) {
+    float dot = lighting.dot(norm);
+    if (dot * lighting[2] < 0) {
+        dot = 0;
+    }
+    shade = fabs(dot);
 }

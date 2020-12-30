@@ -4,6 +4,9 @@
 #include "mesh.h"
 #include "screen.h"
 
+int SCREEN_WIDTH = 1280;
+int SCREEN_HEIGHT = 960;
+
 int main(int argc, char *args[]) {
     if (argc < 2) {
         printf("Error need a filename arg.");
@@ -16,7 +19,7 @@ int main(int argc, char *args[]) {
 
     point<float> light(1, 1, 1);
     light = light / light.mag();
-    screen screen(640, 480, 255);
+    screen screen(SCREEN_WIDTH, SCREEN_HEIGHT, 255);
     std::ifstream infile(args[1]);
     mesh<float> teapot(infile);
 
@@ -43,22 +46,25 @@ int main(int argc, char *args[]) {
             //Get window surface
             SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
             SDL_Texture *texture = SDL_CreateTexture(renderer,
-                                                     SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, 640, 480);
+                                                     SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, SCREEN_WIDTH,
+                                                     SCREEN_HEIGHT);
 
             for (triangle &t : teapot.triangles) {
                 t.normal();
-                t.color(light);
+                t.throw_shade(light);
                 point<int> screen_cords1 = screen.projection(*t.v1);
                 point<int> screen_cords2 = screen.projection(*t.v2);
                 point<int> screen_cords3 = screen.projection(*t.v3);
 
-                screen.draw_line(screen_cords1, screen_cords2, t.shade * 255);
-                screen.draw_line(screen_cords1, screen_cords3, t.shade * 255);
-                screen.draw_line(screen_cords2, screen_cords3, t.shade * 255);
-                screen.draw_triangle(screen_cords1, screen_cords2, screen_cords3, t.shade * 255);
+                uint32_t coolor = int(t.shade * 255) + (int(t.shade * (255)) << 16);
+
+                screen.draw_line(screen_cords1, screen_cords2, coolor);
+                screen.draw_line(screen_cords1, screen_cords3, coolor);
+                screen.draw_line(screen_cords2, screen_cords3, coolor);
+                screen.draw_triangle(screen_cords1, screen_cords2, screen_cords3, coolor);
             }
 
-            SDL_UpdateTexture(texture, NULL, screen.pixels.data(), 640 * sizeof(Uint32));
+            SDL_UpdateTexture(texture, NULL, screen.pixels.data(), SCREEN_WIDTH * sizeof(Uint32));
 
             SDL_RenderClear(renderer);
             SDL_RenderCopy(renderer, texture, NULL, NULL);
