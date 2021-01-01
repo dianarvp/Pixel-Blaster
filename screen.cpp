@@ -11,7 +11,7 @@ bool screen::inbounds(int x, int y, int z) const {
 }
 
 bool screen::inbounds(const point<int> &p) const {
-    return inbounds(p[0], p[1], 0);
+    return inbounds(p[0], p[1], p[2]);
 }
 
 void screen::set_pixel(int x, int y, int z, uint32_t color) {
