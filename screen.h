@@ -9,14 +9,16 @@
 #include <cstdint>
 #include "point.h"
 
+const uint32_t WHITE = 0xFFFFFFFF;
 /**
  * Screen is a buffer of pixels
  */
 struct screen {
     int width, height, depth;
     std::vector<uint32_t> pixels;
+    std::vector<uint32_t> z_buffer;
 
-    screen(int x, int y, int z) : pixels(x * y, 0xFFFFFFFF) {
+    screen(int x, int y, int z) : pixels(x * y, WHITE), z_buffer(x * y, z) {
         width = x;
         height = y;
         depth = z;
@@ -25,7 +27,7 @@ struct screen {
     /**
      * Checks to see whether an x, y pair are within the bounds of the screen.
      */
-    bool inbounds(int x, int y) const;
+    bool inbounds(int x, int y, int z) const;
 
     /**
      * Checks to see whether a point is within the bounds of the screen.
@@ -39,7 +41,7 @@ struct screen {
      * @param y-coordinate
      * @param color
      */
-    void set_pixel(int x, int y, uint32_t color);
+    void set_pixel(int x, int y, int z, uint32_t color);
 
     /**
      * Sets a pixel on the screen to be a certain throw_shade.
@@ -74,6 +76,11 @@ struct screen {
      * @return: A point with integer coordinates
      */
     point<int> projection(const point<float> &p) const;
+
+    /*
+     * Resets all of the pixels to 0.
+     */
+    void clear();
 };
 
 

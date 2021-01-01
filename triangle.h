@@ -8,18 +8,21 @@
 #include <string>
 #include <vector>
 #include "point.h"
+#include "color.h"
 
 struct triangle {
     const point<float> *v1, *v2, *v3;
     point<float> norm;
     float shade;
-    uint32_t color;
+    color colour;
 
     triangle(std::string verts, const std::vector<point<float>> &points);
 
     void normal();
 
     void throw_shade(const point<float> &lighting);
+
+    color fade_color();
 };
 
 

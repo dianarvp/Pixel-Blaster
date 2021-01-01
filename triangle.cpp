@@ -7,7 +7,7 @@
 #include <iostream>
 #include "triangle.h"
 
-triangle::triangle(std::string verts, const std::vector<point<float>> &points) {
+triangle::triangle(std::string verts, const std::vector<point<float>> &points) : colour(128, 128, 128) {
     std::istringstream v(verts);
     int size;
     v >> size;
@@ -17,6 +17,12 @@ triangle::triangle(std::string verts, const std::vector<point<float>> &points) {
     v1 = &points[i1];
     v2 = &points[i2];
     v3 = &points[i3];
+
+    if(!v.eof()) {
+        int r, g, b;
+        v >> r >> g >> b;
+        colour = color(uint8_t(r), uint8_t(g), uint8_t(b));
+    }
 }
 
 void triangle::normal() {
@@ -34,4 +40,9 @@ void triangle::throw_shade(const point<float> &lighting) {
         dot = 0;
     }
     shade = fabs(dot);
+    //shade = 1;
+}
+
+color triangle::fade_color() {
+    return colour * shade;
 }

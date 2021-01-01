@@ -6,53 +6,71 @@
 #include <algorithm>
 #include "screen.h"
 
-bool screen::inbounds(int x, int y) const {
-    return 0 <= x && x < width && 0 <= y && y < height;
+bool screen::inbounds(int x, int y, int z) const {
+    return 0 <= x && x < width && 0 <= y && y < height && 0 <= z && z < depth;
 }
 
 bool screen::inbounds(const point<int> &p) const {
-    return inbounds(p[0], p[1]);
+    return inbounds(p[0], p[1], 0);
 }
 
-void screen::set_pixel(int x, int y, uint32_t color) {
-    if (inbounds(x, y)) {
+void screen::set_pixel(int x, int y, int z, uint32_t color) {
+    if (inbounds(x, y, z) && z < z_buffer[x + width * y]) {
+        z_buffer[x + width * y] = z;
         pixels[x + width * y] = color;
     }
 }
 
 void screen::set_pixel(const point<int> &p, uint32_t color) {
-    set_pixel(p[0], p[1], color);
+    set_pixel(p[0], p[1], p[2], color);
 }
 
 void screen::draw_line(const point<int> &p1, const point<int> &p2, uint32_t color) {
     int w = p2[0] - p1[0];
     int h = p2[1] - p1[1];
+    int d = p2[2] - p1[2];
 
     int x_dir = w > 0 ? 1 : -1;
     int y_dir = h > 0 ? 1 : -1;
+    int z_dir = d > 0 ? 1 : -1;
 
     w = abs(w);
     h = abs(h);
-    int error = 0;
+    d = abs(d);
+    int z_error = 0;
     if (w > h) {
+        int y_error = 0;
         int y = p1[1];
+        int z = p1[2];
         for (int x = p1[0]; x != p2[0] + x_dir; x += x_dir) {
-            if ((abs(error) * 2 > w)) {
+            if ((abs(y_error) * 2 > w)) {
                 y += y_dir;
-                error += w;
+                y_error += w;
             }
-            set_pixel(x, y, color);
-            error -= h;
+            while ((abs(z_error) * 2 > w)) {
+                z += z_dir;
+                z_error += w;
+            }
+            set_pixel(x, y, z, color);
+            y_error -= h;
+            z_error -= d;
         }
     } else {
+        int x_error = 0;
         int x = p1[0];
+        int z = p1[2];
         for (int y = p1[1]; y != p2[1] + y_dir; y += y_dir) {
-            if ((abs(error) * 2 > h)) {
+            if ((abs(x_error) * 2 > h)) {
                 x += x_dir;
-                error += h;
+                x_error += h;
             }
-            set_pixel(x, y, color);
-            error -= w;
+            while ((abs(z_error) * 2 > h)) {
+                z += z_dir;
+                z_error += h;
+            }
+            set_pixel(x, y, z, color);
+            x_error -= w;
+            z_error -= d;
         }
     }
 }
@@ -109,7 +127,7 @@ void screen::draw_triangle(const point<int> &p1, const point<int> &p2, const poi
                 xr += r_dir;
             }
             for (int x = xl; x < xr; x++) {
-                set_pixel(x, y, color);
+                set_pixel(x, y, depth-1, color);
             }
         }
     }
@@ -150,7 +168,7 @@ void screen::draw_triangle(const point<int> &p1, const point<int> &p2, const poi
                 xr += r_dir;
             }
             for (int x = xl; x < xr; x++) {
-                set_pixel(x, y, color);
+                set_pixel(x, y, depth-1, color);
             }
         }
     }
@@ -162,4 +180,9 @@ point<int> screen::projection(const point<float> &p) const {
     result[1] = ((-p[1] / 4 + 1) / 2) * height;
     result[2] = ((p[2] / 4 + 1) / 2) * depth;
     return result;
+}
+
+void screen::clear() {
+    std::fill(pixels.begin(), pixels.end(), WHITE);
+    std::fill(z_buffer.begin(), z_buffer.end(), depth);
 }

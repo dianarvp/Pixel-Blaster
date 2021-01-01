@@ -17,7 +17,7 @@ int main(int argc, char *args[]) {
         return 2;
     }
 
-    point<float> light(1, 1, 1);
+    point<float> light(-20, 0, -20);
     light = light / light.mag();
     screen screen(SCREEN_WIDTH, SCREEN_HEIGHT, 255);
     std::ifstream infile(args[1]);
@@ -27,8 +27,11 @@ int main(int argc, char *args[]) {
 
     // Rotate and scale the input mesh in order to fit into the screen for debugging.
     matrix transform(inmatrix);
-    transform.scale(0.01);
+    transform.scale(1);
     teapot.transform(transform);
+
+    std::ifstream inrotation("rotation.txt");
+    matrix rotation(inrotation);
 
     //The window we'll be rendering to
     SDL_Window *window = NULL;
@@ -36,43 +39,49 @@ int main(int argc, char *args[]) {
     //Initialize SDL
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
-    } else {
-        //Create window
-        window = SDL_CreateWindow("Burn Walton", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screen.width,
-                                  screen.height, SDL_WINDOW_SHOWN);
-        if (window == NULL) {
-            printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
-        } else {
-            //Get window surface
-            SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
-            SDL_Texture *texture = SDL_CreateTexture(renderer,
-                                                     SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, SCREEN_WIDTH,
-                                                     SCREEN_HEIGHT);
+        return 1;
+    }
+    //Create window
+    window = SDL_CreateWindow("Burn Walton", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screen.width,
+                              screen.height, SDL_WINDOW_SHOWN);
+    if (window == NULL) {
+        printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
+        return 1;
+    }
 
-            for (triangle &t : teapot.triangles) {
-                t.normal();
-                t.throw_shade(light);
-                point<int> screen_cords1 = screen.projection(*t.v1);
-                point<int> screen_cords2 = screen.projection(*t.v2);
-                point<int> screen_cords3 = screen.projection(*t.v3);
+    //Get window surface
+    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, 0);
+    SDL_Texture *texture = SDL_CreateTexture(renderer,
+                                             SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, SCREEN_WIDTH,
+                                             SCREEN_HEIGHT);
 
-                uint32_t coolor = int(t.shade * 255) + (int(t.shade * (255)) << 16);
+    while(true) {
+        for (triangle &t : teapot.triangles) {
+            t.normal();
+            t.throw_shade(light);
+            point<int> screen_cords1 = screen.projection(*t.v1);
+            point<int> screen_cords2 = screen.projection(*t.v2);
+            point<int> screen_cords3 = screen.projection(*t.v3);
 
-                screen.draw_line(screen_cords1, screen_cords2, coolor);
-                screen.draw_line(screen_cords1, screen_cords3, coolor);
-                screen.draw_line(screen_cords2, screen_cords3, coolor);
-                screen.draw_triangle(screen_cords1, screen_cords2, screen_cords3, coolor);
-            }
+            color faded_color = t.fade_color();
+            uint32_t colour = faded_color.pack();
 
-            SDL_UpdateTexture(texture, NULL, screen.pixels.data(), SCREEN_WIDTH * sizeof(Uint32));
-
-            SDL_RenderClear(renderer);
-            SDL_RenderCopy(renderer, texture, NULL, NULL);
-            SDL_RenderPresent(renderer);
-
-            //Wait two seconds
-            SDL_Delay(3000);
+            screen.draw_line(screen_cords1, screen_cords2, colour);
+            screen.draw_line(screen_cords1, screen_cords3, colour);
+            screen.draw_line(screen_cords2, screen_cords3, colour);
+            screen.draw_triangle(screen_cords1, screen_cords2, screen_cords3, colour);
         }
+
+        SDL_UpdateTexture(texture, NULL, screen.pixels.data(), SCREEN_WIDTH * sizeof(Uint32));
+
+        SDL_RenderClear(renderer);
+        SDL_RenderCopy(renderer, texture, NULL, NULL);
+        SDL_RenderPresent(renderer);
+
+        //Wait two seconds
+        SDL_Delay(100);
+        teapot.transform(rotation);
+        screen.clear();
     }
 
     //Destroy window
