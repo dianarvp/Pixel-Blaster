@@ -19,7 +19,7 @@ int main(int argc, char *args[]) {
 
     point<float> light(-20, 0, -20);
     light = light / light.mag();
-    screen screen(SCREEN_WIDTH, SCREEN_HEIGHT, 1 << 15);
+    screen screen(SCREEN_WIDTH, SCREEN_HEIGHT, 255);
     std::ifstream infile(args[1]);
     mesh<float> teapot(infile);
 
