@@ -8,7 +8,7 @@ find_package(SDL2_image REQUIRED)
 find_package(SDL2_ttf REQUIRED)
 
 
-set(SOURCE_FILES main.cpp mesh.h triangle.cpp triangle.h point.h matrix.cpp matrix.h screen.h screen.cpp color.cpp color.h)
+set(SOURCE_FILES main.cpp mesh.h triangle.cpp triangle.h point.h matrix.cpp matrix.h screen.h screen.cpp color.cpp color.h line_drawer.cpp line_drawer.h)
 add_executable(GPU ${SOURCE_FILES})
 include_directories(${SDL2_INCLUDE_DIR}
         ${SDL2_IMAGE_INCLUDE_DIR}

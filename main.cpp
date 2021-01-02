@@ -19,7 +19,7 @@ int main(int argc, char *args[]) {
 
     point<float> light(-20, 0, -20);
     light = light / light.mag();
-    screen screen(SCREEN_WIDTH, SCREEN_HEIGHT, 255);
+    screen screen(SCREEN_WIDTH, SCREEN_HEIGHT, 1 << 15);
     std::ifstream infile(args[1]);
     mesh<float> teapot(infile);
 
@@ -75,11 +75,10 @@ int main(int argc, char *args[]) {
         SDL_UpdateTexture(texture, NULL, screen.pixels.data(), SCREEN_WIDTH * sizeof(Uint32));
 
         SDL_RenderClear(renderer);
-        SDL_RenderCopy(renderer, texture, NULL, NULL);
+        SDL_RenderCopyEx(renderer, texture, NULL, NULL, 0, NULL, SDL_FLIP_VERTICAL);
         SDL_RenderPresent(renderer);
 
-        //Wait two seconds
-        SDL_Delay(100);
+        SDL_Delay(60);
         teapot.transform(rotation);
         screen.clear();
     }

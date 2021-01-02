@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <algorithm>
 #include "screen.h"
+#include "line_drawer.h"
 
 bool screen::inbounds(int x, int y, int z) const {
     return 0 <= x && x < width && 0 <= y && y < height && 0 <= z && z < depth;
@@ -91,84 +92,61 @@ void screen::draw_triangle(const point<int> &p1, const point<int> &p2, const poi
     point<int> vec1 = pt3 - pt2;
     point<int> vec2 = pt3 - pt1;
     bool mid_to_left = vec1.cross(vec2)[2] > 0;
+    // We're computing the boundaries of two lines in 3D space (the two sides of a triangle),
+    // then filling in the pixels between them.
+    // We step through the y-dimension and track the other two separately with line_drawer.
     {
-        int w_left = pt2[0] - pt3[0];
-        int l_dir = (w_left < 0) ? -1 : 1;
-        int h_left = pt3[1] - pt2[1];
-
-        int w_right = pt1[0] - pt3[0];
-        int r_dir = (w_right < 0) ? -1 : 1;
-        int h_right = pt3[1] - pt1[1];
+        point<int> left_diff = pt2 - pt3;
+        point<int> right_diff = pt1 - pt3;
 
         if (!mid_to_left) {
-            std::swap(w_left, w_right);
-            std::swap(h_left, h_right);
-            std::swap(l_dir, r_dir);
+            std::swap(left_diff, right_diff);
         }
 
+        line_drawer lx(left_diff[1], left_diff[0]);
+        line_drawer lz(left_diff[1], left_diff[2]);
+        line_drawer rx(right_diff[1], right_diff[0]);
+        line_drawer rz(right_diff[1], right_diff[2]);
         //upper triangle from p3 down to p2
-        int xl = pt3[0];
-        int xr = pt3[0];
-        bool l_positive = (l_dir >= 0);
-        bool r_positive = (r_dir >= 0);
-        int cross_l = 0;
-        int cross_r = 0;
         for (int y = pt3[1] - 1; y >= pt2[1]; y--) {
-            //find leftmost point
-            cross_l -= w_left;
-            while (l_positive == (cross_l < 0)) {
-                cross_l += h_left * l_dir;
-                xl += l_dir;
-            }
-            //find rightmost point
-            cross_r -= w_right;
-            while (r_positive == (cross_r < 0)) {
-                cross_r += h_right * r_dir;
-                xr += r_dir;
-            }
-            for (int x = xl; x < xr; x++) {
-                set_pixel(x, y, depth-1, color);
+            int leftmost_x = lx.step_through();
+            int rightmost_x = rx.step_through();
+            int leftmost_z = lz.step_through();
+            int rightmost_z = rz.step_through();
+
+            line_drawer dz(rightmost_x - leftmost_x, rightmost_z - leftmost_z);
+            int z = leftmost_z;
+            for (int x = pt3[0] + leftmost_x; x < pt3[0] + rightmost_x; x++) {
+                set_pixel(x, y, z, color);
+                z = leftmost_z + dz.step_through();
             }
         }
     }
-    /* CHECK EDGE CASESEEEESESESSS */
     {
-        int w_left = pt2[0] - pt1[0];
-        int l_dir = (w_left < 0) ? -1 : 1;
-        int h_left = pt2[1] - pt1[1];
-
-        int w_right = pt3[0] - pt1[0];
-        int r_dir = (w_right < 0) ? -1 : 1;
-        int h_right = pt3[1] - pt1[1];
+        point<int> left_diff = pt2 - pt1;
+        point<int> right_diff = pt3 - pt1;
 
         if (!mid_to_left) {
-            std::swap(w_left, w_right);
-            std::swap(h_left, h_right);
-            std::swap(l_dir, r_dir);
+            std::swap(left_diff, right_diff);
         }
 
+        line_drawer lx(left_diff[1], left_diff[0]);
+        line_drawer lz(left_diff[1], left_diff[2]);
+        line_drawer rx(right_diff[1], right_diff[0]);
+        line_drawer rz(right_diff[1], right_diff[2]);
         //lower triangle is p1 up to p2
-        int xl = pt1[0];
-        int xr = pt1[0];
-        bool l_positive = (l_dir >= 0);
-        bool r_positive = (r_dir >= 0);
-        int cross_l = 0;
-        int cross_r = 0;
         for (int y = pt1[1] + 1; y < pt2[1]; y++) {
-            //find leftmost point
-            cross_l -= w_left;
-            while (l_positive == (cross_l < 0)) {
-                cross_l += h_left * l_dir;
-                xl += l_dir;
-            }
-            //find rightmost point
-            cross_r -= w_right;
-            while (r_positive == (cross_r < 0)) {
-                cross_r += h_right * r_dir;
-                xr += r_dir;
-            }
-            for (int x = xl; x < xr; x++) {
-                set_pixel(x, y, depth-1, color);
+            int leftmost_x = lx.step_through();
+            int rightmost_x = rx.step_through();
+            int leftmost_z = lz.step_through();
+            int rightmost_z = rz.step_through();
+
+            line_drawer dz(rightmost_x - leftmost_x, rightmost_z - leftmost_z);
+            int z = leftmost_z;
+            for (int x = pt1[0] + leftmost_x; x < pt1[0] + rightmost_x; x++) {
+                set_pixel(x, y, z, color);
+                z = leftmost_z + dz.step_through();
+               // std::cout << "x, y, z: " << x << ", " << y << ", " << z << "\n";
             }
         }
     }
@@ -177,7 +155,7 @@ void screen::draw_triangle(const point<int> &p1, const point<int> &p2, const poi
 point<int> screen::projection(const point<float> &p) const {
     point<int> result;
     result[0] = ((p[0] / 4 + 1) / 2) * width;
-    result[1] = ((-p[1] / 4 + 1) / 2) * height;
+    result[1] = ((p[1] / 4 + 1) / 2) * height;
     result[2] = ((p[2] / 4 + 1) / 2) * depth;
     return result;
 }
