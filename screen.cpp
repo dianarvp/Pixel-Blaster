@@ -111,8 +111,8 @@ void screen::draw_triangle(const point<int> &p1, const point<int> &p2, const poi
         for (int y = pt3[1] - 1; y >= pt2[1]; y--) {
             int leftmost_x = lx.step_through();
             int rightmost_x = rx.step_through();
-            int leftmost_z = lz.step_through();
-            int rightmost_z = rz.step_through();
+            int leftmost_z = lz.step_through() + pt3[2];
+            int rightmost_z = rz.step_through() + pt3[2];
 
             line_drawer dz(rightmost_x - leftmost_x, rightmost_z - leftmost_z);
             int z = leftmost_z;
@@ -138,8 +138,8 @@ void screen::draw_triangle(const point<int> &p1, const point<int> &p2, const poi
         for (int y = pt1[1] + 1; y < pt2[1]; y++) {
             int leftmost_x = lx.step_through();
             int rightmost_x = rx.step_through();
-            int leftmost_z = lz.step_through();
-            int rightmost_z = rz.step_through();
+            int leftmost_z = lz.step_through() + pt1[2];
+            int rightmost_z = rz.step_through() + pt1[2];
 
             line_drawer dz(rightmost_x - leftmost_x, rightmost_z - leftmost_z);
             int z = leftmost_z;

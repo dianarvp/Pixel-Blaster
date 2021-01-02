@@ -40,7 +40,7 @@ void triangle::throw_shade(const point<float> &lighting) {
         dot = 0;
     }
     shade = fabs(dot);
-    //shade = 1;
+    // shade = 1;
 }
 
 color triangle::fade_color() {
