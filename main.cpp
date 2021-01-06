@@ -4,8 +4,8 @@
 #include "mesh.h"
 #include "screen.h"
 
-int SCREEN_WIDTH = 1280;
-int SCREEN_HEIGHT = 960;
+int SCREEN_WIDTH = 320;
+int SCREEN_HEIGHT = 240;
 
 int main(int argc, char *args[]) {
     if (argc < 2) {
@@ -42,8 +42,8 @@ int main(int argc, char *args[]) {
         return 1;
     }
     //Create window
-    window = SDL_CreateWindow("Burn Walton", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screen.width,
-                              screen.height, SDL_WINDOW_SHOWN);
+    window = SDL_CreateWindow("Burn Walton", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screen.width * 6,
+                              screen.height * 6, SDL_WINDOW_SHOWN);
     if (window == NULL) {
         printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
         return 1;
@@ -54,6 +54,7 @@ int main(int argc, char *args[]) {
     SDL_Texture *texture = SDL_CreateTexture(renderer,
                                              SDL_PIXELFORMAT_ARGB8888, SDL_TEXTUREACCESS_STATIC, SCREEN_WIDTH,
                                              SCREEN_HEIGHT);
+    SDL_RenderSetLogicalSize(renderer, SCREEN_WIDTH, SCREEN_HEIGHT);
 
     while(true) {
         for (triangle &t : teapot.triangles) {
@@ -69,7 +70,7 @@ int main(int argc, char *args[]) {
             screen.draw_line(screen_cords1, screen_cords2, colour);
             screen.draw_line(screen_cords1, screen_cords3, colour);
             screen.draw_line(screen_cords2, screen_cords3, colour);
-            screen.draw_triangle(screen_cords1, screen_cords2, screen_cords3, colour);
+           // screen.draw_triangle(screen_cords1, screen_cords2, screen_cords3, colour);
         }
 
         SDL_UpdateTexture(texture, NULL, screen.pixels.data(), SCREEN_WIDTH * sizeof(Uint32));
